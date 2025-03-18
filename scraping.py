@@ -100,21 +100,33 @@ if respuesta.status_code == 200:
             soup = BeautifulSoup(respuesta_caracteristicas.text, "html.parser")
 
             td_ps = soup.find("a", title=nombre).next_element.next_element.next_element.next_element.next_sibling.next_element
+            for sup in td_ps.find_all('sup'):
+                sup.decompose()
             ps = td_ps.text.strip()
 
             td_atq = td_ps.find_next_sibling()
+            for sup in td_atq.find_all('sup'):
+                sup.decompose()
             atq = td_atq.text.strip()
 
             td_def = td_atq.find_next_sibling()
+            for sup in td_def.find_all('sup'):
+                sup.decompose()
             defensa = td_def.text.strip()
 
             td_SpAtq = td_def.find_next_sibling()
+            for sup in td_SpAtq.find_all('sup'):
+                sup.decompose()
             SpAtq = td_SpAtq.text.strip()
 
             td_SpDef = td_SpAtq.find_next_sibling()
+            for sup in td_SpDef.find_all('sup'):
+                sup.decompose()
             SpDef = td_SpDef.text.strip()
 
             td_vel = td_SpDef.find_next_sibling()
+            for sup in td_vel.find_all('sup'):
+                sup.decompose()
             Vel = td_vel.text.strip()
         
 
