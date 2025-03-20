@@ -118,29 +118,41 @@ if respuesta.status_code == 200:
                         altura = fila_altura.find("td").text.strip()
 
 
-                        #NO encuentra la fila en si, encuentra el elemento anteriror para continuar a el td siguiente
-                        fila_ps = soup.find("a", title="Puntos de salud").next_element
-                        ps = fila_ps.find_next().text.strip()
+                        url_caracteristicas = "https://www.wikidex.net/wiki/Lista_de_Pok%C3%A9mon_con_sus_caracter%C3%ADsticas_base"
+                        respuesta_caracteristicas = requests.get(url_caracteristicas)
 
+                        if respuesta_caracteristicas.status_code == 200:
+                            soup = BeautifulSoup(respuesta_caracteristicas.text, "html.parser")
 
-                        fila_atq = soup.find("a", title="Ataque (estadística)").next_element
-                        atq = fila_atq.find_next().text.strip()
+                            td_ps = soup.find("a", title=nombre).next_element.next_element.next_element.next_element.next_sibling.next_element
+                            for sup in td_ps.find_all('sup'):
+                                sup.decompose()
+                            ps = td_ps.text.strip()
 
+                            td_atq = td_ps.find_next_sibling()
+                            for sup in td_atq.find_all('sup'):
+                                sup.decompose()
+                            atq = td_atq.text.strip()
 
-                        fila_def = soup.find("a", title="Defensa").next_element
-                        defensa = fila_def.find_next().text.strip()
+                            td_def = td_atq.find_next_sibling()
+                            for sup in td_def.find_all('sup'):
+                                sup.decompose()
+                            defensa = td_def.text.strip()
 
+                            td_SpAtq = td_def.find_next_sibling()
+                            for sup in td_SpAtq.find_all('sup'):
+                                sup.decompose()
+                            SpAtq = td_SpAtq.text.strip()
 
-                        fila_SpAtq = soup.find("a", title="Ataque especial").next_element
-                        SpAtq = fila_SpAtq.find_next().text.strip()
+                            td_SpDef = td_SpAtq.find_next_sibling()
+                            for sup in td_SpDef.find_all('sup'):
+                                sup.decompose()
+                            SpDef = td_SpDef.text.strip()
 
-
-                        fila_SpDef = soup.find("a", title="Defensa especial").next_element
-                        SpDef = fila_SpDef.find_next().text.strip()
-
-
-                        fila_Vel = soup.find("a", title="Velocidad").next_element
-                        Vel = fila_Vel.find_next().text.strip()
+                            td_vel = td_SpDef.find_next_sibling()
+                            for sup in td_vel.find_all('sup'):
+                                sup.decompose()
+                            Vel = td_vel.text.strip()
 
                         try:
                             datos = pd.Series({'num_pokedex':num_pokedex, 'nombre':nombre, 
@@ -300,29 +312,41 @@ if respuesta.status_code == 200:
                         altura = fila_altura.find("td").text.strip()
 
 
-                        #NO encuentra la fila en si, encuentra el elemento anteriror para continuar a el td siguiente
-                        fila_ps = soup.find("a", title="Puntos de salud").next_element
-                        ps = fila_ps.find_next().text.strip()
+                        url_caracteristicas = "https://www.wikidex.net/wiki/Lista_de_Pok%C3%A9mon_con_sus_caracter%C3%ADsticas_base"
+                        respuesta_caracteristicas = requests.get(url_caracteristicas)
 
+                        if respuesta_caracteristicas.status_code == 200:
+                            soup = BeautifulSoup(respuesta_caracteristicas.text, "html.parser")
 
-                        fila_atq = soup.find("a", title="Ataque (estadística)").next_element
-                        atq = fila_atq.find_next().text.strip()
+                            td_ps = soup.find("a", title=nombre).next_element.next_element.next_element.next_element.next_sibling.next_element
+                            for sup in td_ps.find_all('sup'):
+                                sup.decompose()
+                            ps = td_ps.text.strip()
 
+                            td_atq = td_ps.find_next_sibling()
+                            for sup in td_atq.find_all('sup'):
+                                sup.decompose()
+                            atq = td_atq.text.strip()
 
-                        fila_def = soup.find("a", title="Defensa").next_element
-                        defensa = fila_def.find_next().text.strip()
+                            td_def = td_atq.find_next_sibling()
+                            for sup in td_def.find_all('sup'):
+                                sup.decompose()
+                            defensa = td_def.text.strip()
 
+                            td_SpAtq = td_def.find_next_sibling()
+                            for sup in td_SpAtq.find_all('sup'):
+                                sup.decompose()
+                            SpAtq = td_SpAtq.text.strip()
 
-                        fila_SpAtq = soup.find("a", title="Ataque especial").next_element
-                        SpAtq = fila_SpAtq.find_next().text.strip()
+                            td_SpDef = td_SpAtq.find_next_sibling()
+                            for sup in td_SpDef.find_all('sup'):
+                                sup.decompose()
+                            SpDef = td_SpDef.text.strip()
 
-
-                        fila_SpDef = soup.find("a", title="Defensa especial").next_element
-                        SpDef = fila_SpDef.find_next().text.strip()
-
-
-                        fila_Vel = soup.find("a", title="Velocidad").next_element
-                        Vel = fila_Vel.find_next().text.strip()
+                            td_vel = td_SpDef.find_next_sibling()
+                            for sup in td_vel.find_all('sup'):
+                                sup.decompose()
+                            Vel = td_vel.text.strip()
 
                         try:
                             datos = pd.Series({'num_pokedex':num_pokedex, 'nombre':nombre, 
@@ -383,6 +407,6 @@ if respuesta.status_code == 200:
                         df = pd.concat([df, datos.to_frame().T], ignore_index=True)
 
 
-    engine = create_engine('postgresql://postgres:trabajo_pokemon@127.0.0.1:2642/pokedex')
+    engine = create_engine('postgresql://postgres:contraseña@127.0.0.1:5432/pokedex')
 
     df.to_sql(name='pokemon', con=engine, if_exists='append', index=False)
