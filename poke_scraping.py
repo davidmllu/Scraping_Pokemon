@@ -435,7 +435,8 @@ if respuesta.status_code == 200:
                                                 
                         df = pd.concat([df, datos.to_frame().T], ignore_index=True)
 
-
+    #df.to_csv("pokemon.csv", sep=',', encoding='utf-8')
+  
     engine = create_engine('postgresql://postgres:contraseña@127.0.0.1:5432/pokedex')
 
     df.to_sql(name='pokemon', con=engine, if_exists='append', index=False)
