@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from sqlalchemy import create_engine
 
+# URL inicial en la que hay la lista completa de pokemon
 url = "https://www.wikidex.net"
 lista_pokemon = "/wiki/Lista_de_Pokemon"
 
@@ -10,40 +11,55 @@ url_lista = url+lista_pokemon
 
 respuesta = requests.get(url_lista)
 
-
+# Creación del dataframe donde se almacenaran los datos extraidos.
 df = pd.DataFrame(columns=['num_pokedex', 'nombre', 'tipo1', 'tipo2', 'habilidad1', 'habilidad2', 'hab_oculta', 
                            'peso', 'altura', 'ps', 'ataque', 'defensa', 'spatk', 'spdef', 'velocidad'])
 
 if respuesta.status_code == 200:
     soup = BeautifulSoup(respuesta.text, "html.parser")
 
+    # Mediante el for se buscan todos los tr de la página, que contienen el número, nombre, tipos y nombre en japonés.
     for fila in soup.find_all("tr"):  
             cell = fila.find_all("td")
+
+            '''
+            El objetivo a buscar es la URL asociada al nombre de cada pokemon para entrar a su página individual.
+            Existe el problema de que hay pokemon que tienen formas regionales y el número es el mismo para los dos.
+            En estos casos hay que buscar en lugar del segundo td(generalmente el nombre) a buscar el primero ya que el número corresponde a la forma normal.
+            '''
             if len(cell)==4:
                 second_td = cell[1]
                 a_tag = second_td.find("a")
                 pokemon = a_tag["href"]
-
+              
+                # Estas tres variables, es necesario resetearlas si no guardan el dato del pokemon anterior en caso de que el actual no tenga alguna de ellas.
                 tipo_final2 = ""
 
                 habilidad2 = ""
 
                 habilidad_ocu = ""
-
+              
+                # Se conbinan la URL de la wikidex y la del pokemon para aceder a su página individual.
                 url_pokemon = url+pokemon
 
                 respuesta_pokemon = requests.get(url_pokemon)
 
                 if respuesta_pokemon.status_code == 200:
                     soup = BeautifulSoup(respuesta_pokemon.text, "html.parser")
-
+                  
+                    # Se busca el div donde está el número de la pokedex nacional y se accede al número.
                     div_pokedex = soup.find("div", class_="sec sec-nacional")
                     num_pokedex = div_pokedex.find("span", id="numeronacional").text.strip()
 
-
+                    # El nombre el el título de la página.
                     nombre = soup.find("h1", class_="firstHeading").text.strip()
+                  
 
-
+                    '''En el caso de los tipos hay que diferenciar si se tiene dos o uno.
+                    Prueba a buscar los dos y si no encuentra el segundo pasa a ejecutar la busqueda de uno.
+                    Los tipos en este caso se muestran con imagenes en la web así que se busca la URL asociada 
+                    a las imagenes para aceder a la páginas del tipo buscado y coger el título de la página que incluye el tipo correspondiente
+                    '''
                     try:
                         fila_tipo = soup.find("tr", title="Tipos a los que pertenece")
                         tipo_a = fila_tipo.find("td")
@@ -82,9 +98,15 @@ if respuesta.status_code == 200:
                             tipo_final1 = soup.find("h1", class_="firstHeading").text.strip()
                         else:
                             print("error")
+
+                    # Se vuelve de nuevo a la página del pokemon para segir.
                     if respuesta_pokemon.status_code == 200:
                         soup = BeautifulSoup(respuesta_pokemon.text, "html.parser")
-                        
+
+                        '''
+                        Las habilidades utilizan el mismo mecanismo de probar si hay dos o una.
+                        Para encontrar las habilidaddes hay que buscar la fila donde se encuentran y buscar los siguientes elementos.
+                        '''
                         try:
                             fila_habilidad = soup.find("tr", title="Habilidades que puede conocer")
                             comp = fila_habilidad.find("td")
@@ -102,14 +124,15 @@ if respuesta.status_code == 200:
                             fila_habilidad = soup.find("tr", title="Habilidades que puede conocer")
                             habilidad1 = fila_habilidad.find("td").text.strip()
                             pass
-                        
+
+                        # No todos tienen habilidad oculta así que hay que comprobar si la tiene
                         try:
                             fila_habilidad_ocu = soup.find("tr", title="Habilidad oculta")
                             habilidad_ocu = fila_habilidad_ocu.find("td").text.strip()
                         except:
                             pass
 
-                        
+                        # El peso y la altura al igual que la habilidad, se busca el tr donde estan y dentro el td que los almacena.
                         fila_peso = soup.find("tr", title="Peso del Pokémon")
                         peso = fila_peso.find("td").text.strip()
 
@@ -117,7 +140,13 @@ if respuesta.status_code == 200:
                         fila_altura = soup.find("tr", title="Altura del Pokémon")
                         altura = fila_altura.find("td").text.strip()
 
-
+                      
+                        '''
+                        Para encontar las características existe una página con una tabla y el nombre y cada una de las características del pokemon.
+                        Buscando la etiqueta "a" con el nombre de cada pokemon se pasa a buscar los siguientes elementos hasta pasar a la proxima etiqueta.
+                        De esta manera pasando de etiqueta en etiqueta se consiguen las 6 características base.
+                        Algunas de ellas cuentan con un superindice de explicación por lo que se usa descompose para purgarlas y que no las incluya en los datos.
+                        '''
                         url_caracteristicas = "https://www.wikidex.net/wiki/Lista_de_Pok%C3%A9mon_con_sus_caracter%C3%ADsticas_base"
                         respuesta_caracteristicas = requests.get(url_caracteristicas)
 
