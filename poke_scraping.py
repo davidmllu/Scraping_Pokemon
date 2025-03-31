@@ -183,6 +183,13 @@ if respuesta.status_code == 200:
                                 sup.decompose()
                             Vel = td_vel.text.strip()
 
+                      
+                        '''
+                        Se añaden los datos extraidos y almacenados en variables dentro de un diccionario para seguidamente añadir
+                        los datos al dataframe creado.
+                        Mediante try's y error's se va cribando la posibilidad de los datos obtenidos en cada pokemon para que así 
+                        no falle el programa en caso de faltar algún dato.
+                        '''
                         try:
                             datos = pd.Series({'num_pokedex':num_pokedex, 'nombre':nombre, 
                                             'tipo1':tipo_final1, 'tipo2':tipo_final2, 
@@ -435,6 +442,11 @@ if respuesta.status_code == 200:
                                                 
                         df = pd.concat([df, datos.to_frame().T], ignore_index=True)
 
+    '''
+    Hay dos opciones para la visualización de los datos externamente.
+    Con to_csv se crea un csv con los datos.
+    Mediante sqlalchemy y su importado create_engine y to_sql, se añaden el dataframe a una base de datos en postgresql, en este caso.
+    '''
     #df.to_csv("pokemon.csv", sep=',', encoding='utf-8')
   
     engine = create_engine('postgresql://postgres:contraseña@127.0.0.1:5432/pokedex')
